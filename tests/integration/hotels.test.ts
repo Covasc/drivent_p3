@@ -190,8 +190,12 @@ describe("GET /hotels/:hotelId", () => {
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
+
+      //TODO factory
       const createdHotel = await createHotel();
+
       const createdRoom = await createRoomWithHotelId(createdHotel.id);
+
       const response = await server.get(`/hotels/${createdHotel.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.OK);
@@ -220,9 +224,11 @@ describe("GET /hotels/:hotelId", () => {
       const ticketType = await createTicketTypeWithHotel();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       const payment = await createPayment(ticket.id, ticketType.price);
+
       const createdHotel = await createHotel();
+
       const response = await server.get(`/hotels/${createdHotel.id}`).set("Authorization", `Bearer ${token}`);
-      
+
       expect(response.status).toEqual(httpStatus.OK);
 
       expect(response.body).toEqual(
