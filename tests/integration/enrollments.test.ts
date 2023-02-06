@@ -34,7 +34,6 @@ describe("GET /enrollments", () => {
   it("should respond with status 401 if there is no session for given token", async () => {
     const userWithoutSession = await createUser();
     const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
-
     const response = await server.get("/enrollments").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -43,9 +42,7 @@ describe("GET /enrollments", () => {
   describe("when token is valid", () => {
     it("should respond with status 404 when there is no enrollment for given user", async () => {
       const token = await generateValidToken();
-
       const response = await server.get("/enrollments").set("Authorization", `Bearer ${token}`);
-
       expect(response.status).toBe(httpStatus.NOT_FOUND);
     });
 
@@ -53,7 +50,6 @@ describe("GET /enrollments", () => {
       const user = await createUser();
       const enrollment = await createEnrollmentWithAddress(user);
       const token = await generateValidToken(user);
-
       const response = await server.get("/enrollments").set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(httpStatus.OK);
@@ -102,7 +98,6 @@ describe("POST /enrollments", () => {
 
   it("should respond with status 401 if given token is not valid", async () => {
     const token = faker.lorem.word();
-
     const response = await server.post("/enrollments").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -111,7 +106,6 @@ describe("POST /enrollments", () => {
   it("should respond with status 401 if there is no session for given token", async () => {
     const userWithoutSession = await createUser();
     const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
-
     const response = await server.post("/enrollments").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -120,7 +114,6 @@ describe("POST /enrollments", () => {
   describe("when token is valid", () => {
     it("should respond with status 400 when body is not present", async () => {
       const token = await generateValidToken();
-
       const response = await server.post("/enrollments").set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(httpStatus.BAD_REQUEST);
@@ -155,7 +148,6 @@ describe("POST /enrollments", () => {
       it("should respond with status 201 and create new enrollment if there is not any", async () => {
         const body = generateValidBody();
         const token = await generateValidToken();
-
         const response = await server.post("/enrollments").set("Authorization", `Bearer ${token}`).send(body);
 
         expect(response.status).toBe(httpStatus.OK);
@@ -207,7 +199,6 @@ describe("POST /enrollments", () => {
       it("should respond with status 400 and create new enrollment if there is not any", async () => {
         const body = generateInvalidBody();
         const token = await generateValidToken();
-
         const response = await server.post("/enrollments").set("Authorization", `Bearer ${token}`).send(body);
 
         expect(response.status).toBe(httpStatus.BAD_REQUEST);

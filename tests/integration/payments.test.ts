@@ -34,7 +34,6 @@ describe("GET /payments", () => {
 
   it("should respond with status 401 if given token is not valid", async () => {
     const token = faker.lorem.word();
-
     const response = await server.get("/payments").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -43,7 +42,6 @@ describe("GET /payments", () => {
   it("should respond with status 401 if there is no session for given token", async () => {
     const userWithoutSession = await createUser();
     const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
-
     const response = await server.get("/payments").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -52,7 +50,6 @@ describe("GET /payments", () => {
   describe("when token is valid", () => {
     it("should respond with status 400 if query param ticketId is missing", async () => {
       const token = await generateValidToken();
-
       const response = await server.get("/payments").set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.BAD_REQUEST);
@@ -62,7 +59,6 @@ describe("GET /payments", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       await createEnrollmentWithAddress(user);
-
       const response = await server.get("/payments?ticketId=1").set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.NOT_FOUND);
@@ -73,11 +69,9 @@ describe("GET /payments", () => {
       const token = await generateValidToken(user);
       await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
-
       const otherUser = await createUser();
       const otherUserEnrollment = await createEnrollmentWithAddress(otherUser);
       const ticket = await createTicket(otherUserEnrollment.id, ticketType.id, TicketStatus.RESERVED);
-
       const response = await server.get(`/payments?ticketId=${ticket.id}`).set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
@@ -117,7 +111,6 @@ describe("POST /payments/process", () => {
 
   it("should respond with status 401 if given token is not valid", async () => {
     const token = faker.lorem.word();
-
     const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -126,7 +119,6 @@ describe("POST /payments/process", () => {
   it("should respond with status 401 if there is no session for given token", async () => {
     const userWithoutSession = await createUser();
     const token = jwt.sign({ userId: userWithoutSession.id }, process.env.JWT_SECRET);
-
     const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(httpStatus.UNAUTHORIZED);
@@ -139,9 +131,7 @@ describe("POST /payments/process", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
       await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
-
       const body = { cardData: generateCreditCardData() };
-
       const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
 
       expect(response.status).toEqual(httpStatus.BAD_REQUEST);
@@ -153,9 +143,7 @@ describe("POST /payments/process", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
-
       const body = { ticketId: ticket };
-
       const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
 
       expect(response.status).toEqual(httpStatus.BAD_REQUEST);
@@ -165,9 +153,7 @@ describe("POST /payments/process", () => {
       const user = await createUser();
       const token = await generateValidToken(user);
       await createEnrollmentWithAddress(user);
-
       const body = { ticketId: 1, cardData: generateCreditCardData() };
-
       const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
 
       expect(response.status).toEqual(httpStatus.NOT_FOUND);
@@ -178,13 +164,10 @@ describe("POST /payments/process", () => {
       const token = await generateValidToken(user);
       await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
-
       const otherUser = await createUser();
       const otherUserEnrollment = await createEnrollmentWithAddress(otherUser);
       const ticket = await createTicket(otherUserEnrollment.id, ticketType.id, TicketStatus.RESERVED);
-
       const body = { ticketId: ticket.id, cardData: generateCreditCardData() };
-
       const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
 
       expect(response.status).toEqual(httpStatus.UNAUTHORIZED);
@@ -196,9 +179,7 @@ describe("POST /payments/process", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
-
       const body = { ticketId: ticket.id, cardData: generateCreditCardData() };
-
       const response = await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
 
       expect(response.status).toEqual(httpStatus.OK);
@@ -219,12 +200,9 @@ describe("POST /payments/process", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
-
       const beforeCount = await prisma.payment.count();
-
       const body = { ticketId: ticket.id, cardData: generateCreditCardData() };
       await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
-
       const afterCount = await prisma.payment.count();
 
       expect(beforeCount).toEqual(0);
@@ -237,10 +215,8 @@ describe("POST /payments/process", () => {
       const enrollment = await createEnrollmentWithAddress(user);
       const ticketType = await createTicketType();
       const ticket = await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
-
-      const body = { ticketId: ticket.id, cardData: generateCreditCardData() };
+      const body = { ticketId: ticket.id, cardData: generateCreditCardData() };      
       await server.post("/payments/process").set("Authorization", `Bearer ${token}`).send(body);
-
       const updatedTicket = await prisma.ticket.findUnique({ where: { id: ticket.id } });
 
       expect(updatedTicket.status).toEqual(TicketStatus.PAID);
